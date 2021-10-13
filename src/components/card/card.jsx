@@ -8,16 +8,16 @@ const Card = (props) => {
       <div className="card-container" onClick={() => {}}>
         <img
           className="image"
-          src={item.image}
+          src={item.images[0]}
         />
         <h4 className="name">{item.name}</h4>
         <p className="email d-flex">
           Hãng: <span className="ml-1 text-success font-weight-bold">{item.brand}</span>
         </p>
-        <p className="email d-flex">
+        <p className="email d-flex name">
           Chip xử lý:{" "}
           <span className="ml-1 text-success font-weight-bold">
-            {item.chip}
+            {item.cpu}
           </span>
         </p>
         <p className="email d-flex">
