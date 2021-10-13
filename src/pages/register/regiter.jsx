@@ -26,11 +26,11 @@ const Register =() => {
         setCfPassword(e.target.value)
       }
   }
-  const onLogin = () => {
+  const onRegister = () => {
     console.log(username, password);
     if(password === cfpassword){
       console.log('Dang ky thanh cong');
-      alert('Đăng Nhập Thành Công!!!')
+      alert('Đăng Ký Thành Công!!!')
       history.push('/login');
     } else {
       console.log('Dang nhap that bai')
@@ -66,7 +66,7 @@ const Register =() => {
             onChange={(e) => handleChange(e, 'cfpassword')}
             />
             <br />
-            <Button color="green" onClick={onLogin} > Đăng Ký </Button>
+            <Button color="green" onClick={onRegister} > Đăng Ký </Button>
           </div>
         </div>
       </div>
