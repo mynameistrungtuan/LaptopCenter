@@ -3,6 +3,8 @@ import Navbar from "../../components/navbar/navbar";
 import { Input, Button } from 'semantic-ui-react';
 import './login.scss'
 import {useHistory} from 'react-router-dom'
+const axios = require("axios");
+
 
 const account = { username: 'admin', password: 'admin'}
 
@@ -22,14 +24,18 @@ const Login =() => {
     }
   }
   const onLogin = () => {
-    console.log(username, password);
-    if(username === account.username && password === account.password){
-      console.log('Dang nhap thanh cong');
-      history.push('/');
-    } else {
-      console.log('Dang nhap that bai')
-      alert('Sai Username Hoặc Password!!!')
-    }
+    axios.post('https://lap-center.herokuapp.com/api/login', {
+      username: username,
+      password: password
+    })
+    .then(function (response) {
+      console.log(response);
+      history.push('/')
+    })
+    .catch(function (error) {
+      console.log(error);
+      alert('Sai ten dang nhap hoac mat khau!!!')
+    });
   }
 
     return(
