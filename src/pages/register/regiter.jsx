@@ -26,7 +26,7 @@ const Register =() => {
         setCfPassword(e.target.value)
       }
   }
-  const onRegister = () => {
+  const onLogin = () => {
     console.log(username, password);
     if(password === cfpassword){
       console.log('Dang ky thanh cong');
@@ -66,7 +66,7 @@ const Register =() => {
             onChange={(e) => handleChange(e, 'cfpassword')}
             />
             <br />
-            <Button color="green" onClick={onRegister} > Đăng Ký </Button>
+            <Button color="green" onClick={onLogin} > Đăng Ký </Button>
           </div>
         </div>
       </div>
