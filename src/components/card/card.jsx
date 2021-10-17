@@ -7,8 +7,10 @@ import {useHistory} from 'react-router-dom';
 const Card = (props) => {
   const item = props.product;
   const history = useHistory();
+
   const moveToDetail = () => {
-    history.push('/productDetail');
+    history.push(`/product/${item._id}`);
+    console.log('item id_: ', item._id)
   }
 
   return (
