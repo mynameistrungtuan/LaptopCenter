@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import Navbar from "../../components/navbar/navbar";
 import { Segment, Button, Table } from "semantic-ui-react";
 import "./productDetail.scss";
-import { useLocation } from "react-router-dom";
+import { useLocation, useHistory } from "react-router-dom";
 import Carousel from "react-multi-carousel";
 import "react-multi-carousel/lib/styles.css";
 import axios from "axios";
 import CardItem from "../../components/cardItem/cardItem";
+import Footer from "../footer/footer";
 
 const responsive = {
   superLargeDesktop: {
@@ -30,12 +31,13 @@ const responsive = {
 
 const ProductDetail = () => {
   const [data, setData] = useState([]);
-  const [image, setimage] = useState("");
+  const [image, setImage] = useState("");
   const [load, setLoad] = useState(true);
   const location = useLocation();
   const id = location.pathname?.split("product/")[1];
   const [sameProduct, setSameProduct] = useState([]);
   // const id = location.pathname?.replace('product/', '');
+  const history = useHistory();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -52,7 +54,7 @@ const ProductDetail = () => {
         const data = res.data.response;
         setData(data);
         console.log("data detail: ", data);
-        setimage(data.images[0]);
+        setImage(data.images[0]);
         setLoad(false);
         fecthSameProduct(data.brand);
       })
@@ -63,7 +65,7 @@ const ProductDetail = () => {
   };
 
   const onChooseImage = (image) => {
-    setimage(image);
+    setImage(image);
   };
 
   const fecthSameProduct = (brand) => {
@@ -83,6 +85,10 @@ const ProductDetail = () => {
         setLoad(false);
       });
   };
+
+  const moveToBuy = () => {
+    history.push(`/buy/${id}`)
+  }
   return (
     <div>
       <Navbar />
@@ -115,10 +121,12 @@ const ProductDetail = () => {
               <div className="discount-top">
                 <p>Khuyến mãi - Quà tặng</p>
               </div>
-              <div className="discount-content">something</div>
+              <div className="discount-content">Something</div>
             </div>
             <div className="detail-buy">
-              <Button color="red">MUA NGAY</Button>
+              <Button color="red" onClick={moveToBuy}>
+                MUA NGAY
+              </Button>
               <p>
                 GỌI NGAY <a href="tel:+84969442510"> 0522 564 268 </a> ĐỂ GIỮ
                 HÀNG
@@ -185,16 +193,14 @@ const ProductDetail = () => {
         <div className="same-product">
           <h3>Sản phẩm cùng thương hiệu</h3>
           <hr />
-          <Carousel 
-            responsive={responsive}
-            showDots={true}
-          >
+          <Carousel responsive={responsive} showDots={true}>
             {sameProduct.map((item) => (
-              <CardItem product={item}/>
+              <CardItem product={item} />
             ))}
           </Carousel>
         </div>
       </Segment>
+      <Footer />
     </div>
   );
 };
