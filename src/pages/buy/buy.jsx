@@ -8,6 +8,8 @@ import {
   Label,
   Form,
   TextArea,
+  Modal,
+  Image
 } from "semantic-ui-react";
 import axios from "axios";
 import { useLocation, useHistory } from "react-router-dom";
@@ -19,24 +21,27 @@ const Buy = () => {
   const [address, setAddress] = useState("");
   const [data, setData] = useState([]);
   const [image, setImage] = useState("");
-  const [load, setLoad] = useState(true);
+  const [loading, setLoading] = useState(true);
   const location = useLocation();
   const id = location.pathname?.split("buy/")[1];
   const [quantity, setQuantity] = useState(1);
+  const [open, setOpen] = React.useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [message, setMessage] = useState('');
 
   const fetchData = () => {
-    setLoad(true);
+    setLoading(true);
     let url = `https://lap-center.herokuapp.com/api/product/getProductById/${id}`;
     axios
       .get(url)
       .then(function (res) {
         const data = res.data.response;
+        setLoading(false);
         setData(data);
         setImage(data.images[0]);
-        setLoad(false);
       })
       .catch(function (error) {
-        setLoad(false);
+        setLoading(false);
       });
   };
 
@@ -75,7 +80,33 @@ const Buy = () => {
 
   useEffect(() => {
     fetchData();
-  });
+  },[]);
+
+  const onOder = () => {
+    setOpen(false)
+    setLoading(true);
+    axios.post('https://lap-center.herokuapp.com/api/order/addOrder', {
+      customerName : customerName,
+      email: email,
+      phone: phoneNumber,
+      address: address,
+      productName: data.name,
+      productBrand: data.brand,
+      quantity: quantity,
+      orderStatus: 1
+    })
+    .then(function (res) {
+      console.log(res);
+      setLoading(false);
+      setOpenDialog(true);
+      setMessage('Đặt hàng thành công!!!');
+    })
+    .catch(function (error) {
+      console.log(error);
+      setLoading(false);
+      setMessage('Đặt hàng thất bại, vui lòng thử lại sau!!!');
+    });
+  };
 
   let checkInfo = true;
   if (!customerName || !phoneNumber || !email || !address) checkInfo = true;
@@ -84,7 +115,7 @@ const Buy = () => {
   return (
     <div>
       <Navbar />
-      <Segment className="buy-container">
+      <Segment loading={loading} className="buy-container" >
         <div className="buy-title">
           <p>Để đặt hàng</p>
           <span>
@@ -152,14 +183,95 @@ const Buy = () => {
                     onChange={(e) => onChangeInfo(e, "email")}
                   />
                 </Form.Field>
-                <Button color="red" disabled={checkInfo} className="btn-order">
+                {/* <Button color="red" disabled={checkInfo} className="btn-order">
                   Đặt hàng
-                </Button>
+                </Button> */}
+                <Modal
+                  onClose={() => setOpen(false)}
+                  onOpen={() => setOpen(true)}
+                  open={open}
+                  trigger={
+                    <Button
+                      color="red"
+                      disabled={checkInfo}
+                      className="btn-order"
+                    >
+                      Đặt hàng
+                    </Button>
+                  }
+                >
+                  <Modal.Header>Xác nhận thông tin</Modal.Header>
+                  <Modal.Content image>
+                    <Image
+                      size="medium"
+                      src={image}
+                      wrapped
+                    />
+                    <Modal.Description>
+                    <h5 className="txt-title">Thông tin sản phẩm</h5>
+                      <div className="info-check">
+                        <p>Tên sản phẩm:</p>
+                        <span>{data.name}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Hãng:</p>
+                        <span>{data.brand}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Số lượng:</p>
+                        <span>{quantity}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Tổng tiền:</p>
+                        <span>{quantity * data.price}</span>
+                      </div>
+                      <h5 className="txt-title">Thông tin khách hàng</h5>
+                      <div className="info-check">
+                        <p>Tên khách hàng:</p>
+                        <span>{customerName}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Số điện thoại:</p>
+                        <span>{phoneNumber}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Email:</p>
+                        <span>{email}</span>
+                      </div>
+                      <div className="info-check">
+                        <p>Địa chỉ giao hàng:</p>
+                        <span>{address}</span>
+                      </div>
+                    </Modal.Description>
+                  </Modal.Content>
+                  <Modal.Actions>
+                    <Button onClick={() => setOpen(false)}>Hủy</Button>
+                    <Button onClick={onOder} positive>
+                      Xác Nhận
+                    </Button>
+                  </Modal.Actions>
+                </Modal>
               </Form>
             </Segment>
           </div>
         </div>
       </Segment>
+      <Modal
+        onClose={() => setOpenDialog(false)}
+        onOpen={() => setOpenDialog(true)}
+        open={openDialog}
+        size="mini"
+      >
+        <Modal.Header>
+          <h4 className="txt-check">Thông báo</h4>
+        </Modal.Header>
+        <Modal.Content image>
+          <p>{message}</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
+        </Modal.Actions>
+      </Modal>
     </div>
   );
 };
