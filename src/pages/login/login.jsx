@@ -1,68 +1,95 @@
-import React, {useState} from "react";
 import Navbar from "../../components/navbar/navbar";
-import { Input, Button } from 'semantic-ui-react';
-import './login.scss'
-import {useHistory} from 'react-router-dom'
+import "./login.scss";
+import { Input, Button, Icon, Dimmer, Loader } from "semantic-ui-react";
+import React, { useState } from "react";
+import { useHistory } from "react-router-dom";
 const axios = require("axios");
+const account = { username: "admin", password: "admin" };
 
-
-const account = { username: 'admin', password: 'admin'}
-
-
-const Login =() => {
-
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+function Login() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const history = useHistory();
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e, field) => {
-    if(field === 'username') {
-      setUsername(e.target.value)
+    if (field == "username") {
+      setUsername(e.target.value);
+    } else if (field == "password") {
+      setPassword(e.target.value);
     }
-    if(field === 'password') {
-      setPassword(e.target.value)
-    }
-  }
+  };
   const onLogin = () => {
-    axios.post('https://lap-center.herokuapp.com/api/login', {
-      username: username,
-      password: password
-    })
-    .then(function (response) {
-      console.log(response);
-      history.push('/')
-    })
-    .catch(function (error) {
-      console.log(error);
-      alert('Sai ten dang nhap hoac mat khau!!!')
-    });
-  }
+    setLoading(true);
+    axios
+      .post("https://lap-center.herokuapp.com/api/login", {
+        username: username,
+        password: password,
+      })
+      .then(function (response) {
+        setLoading(false);
+        console.log(response);
+        history.push("/");
+        alert("Đăng nhập thành công!!!");
+      })
+      .catch(function (error) {
+        setLoading(false);
+        console.log(error);
+        alert("Sai tên đăng nhập hoặc mật khẩu!!!");
+      });
+  };
+  let checkInfo = true;
+  !username || !password ? (checkInfo = true) : (checkInfo = false);
 
-    return(
-        <div>
-      <Navbar />
+  return (
+    <div>
+      <Icon
+        className="icon-home"
+        name="home"
+        size="large"
+        inverted
+        circular
+        link
+        onClick={() => history.push("/")}
+      />
+      <Dimmer active={loading} inverted>
+        <Loader>Loading</Loader>
+      </Dimmer>
       <div className="login-container">
         <div className="login-form">
-          <h1 style={{ textAlign: "center", marginBottom: "40px" }}> Đăng nhập </h1>
+          <h1 style={{ textAlign: "center", marginBottom: "40px" }}>
+            {" "}
+            Đăng Nhập{" "}
+          </h1>
           <div className="login-content">
             <label>Tên đăng nhập</label>
             <br />
-            <Input placeholder="Username" className="inputText" 
-             value = {username}
-             onChange={(e) => handleChange(e, 'username')}
+            <Input
+              placeholder="Username"
+              className="inputText"
+              onChange={(e) => handleChange(e, "username")}
+              value={username}
             />
             <br />
             <label style={{ marginTop: "10px" }}>Mật khẩu</label>
             <br />
-            <Input placeholder="Password" type="password" className="inputText"
-            value={password}
-            onChange={(e) => handleChange(e, 'password')}
+            <Input
+              placeholder="Password"
+              type="password"
+              className="inputText"
+              onChange={(e) => handleChange(e, "password")}
+              value={password}
             />
             <br />
-            <Button color="green" onClick={onLogin} > Đăng nhập </Button>
+            <Button color="primary" onClick={onLogin} disabled={checkInfo}>
+              Đăng nhập
+            </Button>
             <p style={{ marginTop: "20px", textAlign: "center" }}>
               Bạn chưa có tài khoản?{" "}
-              <a className="register-text" onClick={() => history.push('/register')}>
+              <a
+                className="register-text"
+                onClick={() => history.push("./register")}
+              >
                 Đăng ký ngay.
               </a>
             </p>
@@ -70,7 +97,6 @@ const Login =() => {
         </div>
       </div>
     </div>
-    )
-};
-
+  );
+}
 export default Login;
