@@ -4,7 +4,8 @@ import Card from "../../components/card/card";
 import product from "../../assets/data/product";
 import { useState, useEffect } from "react";
 import { Input, Icon, Segment, Pagination } from "semantic-ui-react";
-const axios = require("axios");
+import HistoryAndCart from "../../components/historyAndCart/historyAndCart";
+import axios from "axios";
 
 function Home() {
   const [data, setData] = useState([]);
@@ -15,13 +16,15 @@ function Home() {
   const [totalPage, setTotalPage] = useState(0);
   const [loading, setLoading] = useState(false);
 
+  const currentUser = localStorage.getItem("customerName");
+
   const fetchData = async (url) => {
     setLoading(true);
     await axios
       .get(url)
       .then(function (response) {
-        setPageNumber(1)
-        setTotalPage(response.data.totalPage)
+        setPageNumber(1);
+        setTotalPage(response.data.totalPage);
         setData(response.data.products);
         setLoading(false);
       })
@@ -50,9 +53,8 @@ function Home() {
     await fetchData(url);
   };
   const sortPrice = async (e) => {
-    
     setPrice(e.target.value);
-   
+
     let url = `https://lap-center.herokuapp.com/api/product?productName=${search}&productBrand=${brand}&orderByColumn=price&orderByDirection=${e.target.value}`;
     await fetchData(url);
   };
@@ -66,8 +68,7 @@ function Home() {
       .then(function (response) {
         setData(response.data.products);
         setTotalPage(response.data.totalPage);
-    
-setLoading(false);
+        setLoading(false);
       })
       .catch(function (error) {
         console.log(error);
@@ -115,42 +116,18 @@ setLoading(false);
           </select>
         </div>
       </div>
-      <div className="container-body">
-        <div className="menuLeft">
-          {/* <Input
-          icon={
-            <Icon
-              name="search"
-              inverted
-              circular
-              link
-              onClick={onSubmitSearch}
-            />
-          }
-          placeholder="Search..."
-          value={search}
-          onChange={onChangeSearch}
-        />
-        <div className="selectForm">
-          <p>Hãng</p>
-          <select className="selectBox" value={brand} onChange={onSearchBrand}>
-            <option selected value=""></option>
-            <option value="Asus">ASUS</option>
-            <option value="Dell">DELL</option>
-            <option value="Acer">ACER</option>
-            <option value="Lenovo">LENOVO</option>
-          </select>
-        </div>
 
-        <div className="selectForm">
-          <p>Giá</p>
-          <select className="selectBox" value={price} onChange={sortPrice}>
-            <option selected value=""></option>
-            <option value="asc">Từ thấp đến cao</option>
-            <option value="desc">Từ cao đến thấp</option>
-          </select> */}
-          {/* </div> */}
-        </div>
+      <div className="currentUser">
+        {currentUser && (
+          <p>
+            Chào mừng, <span> {currentUser} </span>
+          </p>
+        )}
+      </div>
+      {currentUser && <HistoryAndCart />}
+
+      <div className="container-body">
+        <div className="menuLeft"></div>
         <Segment loading={loading} className="product">
           {data.length === 0 ? (
             <div className="noResults">
