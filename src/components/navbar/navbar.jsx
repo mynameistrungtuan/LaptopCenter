@@ -9,7 +9,9 @@ const Navbar = (props) => {
 
   const backToHome = () => {
     history.push("/");
-  }
+  };
+
+  const currentUser = localStorage.getItem("customerName");
 
   return (
     <div className="navbar">
@@ -26,9 +28,19 @@ const Navbar = (props) => {
         <Link className="option" to="/contact">
           LIÊN HỆ
         </Link>
-        <Link className="option" to="/login">
-          ĐĂNG NHẬP
-        </Link>
+        {currentUser ? (
+          <Link
+            className="option"
+            to="/login"
+            onClick={() => localStorage.clear()}
+          >
+            ĐĂNG XUẤT
+          </Link>
+        ) : (
+          <Link className="option" to="/login">
+            ĐĂNG NHẬP
+          </Link>
+        )}
       </div>
     </div>
   );

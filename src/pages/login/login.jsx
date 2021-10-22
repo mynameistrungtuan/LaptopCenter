@@ -31,6 +31,8 @@ function Login() {
         console.log(response);
         history.push("/");
         alert("Đăng nhập thành công!!!");
+        localStorage.setItem('customerName', response.data.userName);
+      localStorage.setItem('userId', response.data.userId);
       })
       .catch(function (error) {
         setLoading(false);
