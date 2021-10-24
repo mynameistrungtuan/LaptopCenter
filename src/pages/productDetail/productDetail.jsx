@@ -1,98 +1,123 @@
-import React, { useEffect, useState } from "react";
-import Navbar from "../../components/navbar/navbar";
-import { Segment, Button, Table } from "semantic-ui-react";
+import React,{ useState, useEffect } from "react";
+import { Segment, Button, Table, Loading, Card,Modal } from "semantic-ui-react";
 import "./productDetail.scss";
-import { useLocation, useHistory } from "react-router-dom";
-import Carousel from "react-multi-carousel";
-import "react-multi-carousel/lib/styles.css";
+import Navbar from "../../components/navbar/navbar";
+import { useLocation,useHistory } from "react-router-dom";
+import Carousel from 'react-multi-carousel';
+import 'react-multi-carousel/lib/styles.css';
 import axios from "axios";
 import CardItem from "../../components/cardItem/cardItem";
 import Footer from "../footer/footer";
-
+import Buy from "../buy/buy";
 const responsive = {
   superLargeDesktop: {
     // the naming can be any, depends on you.
     breakpoint: { max: 4000, min: 3000 },
-    items: 4,
+    items: 4
   },
   desktop: {
     breakpoint: { max: 3000, min: 1024 },
-    items: 3,
+    items: 3
   },
   tablet: {
     breakpoint: { max: 1024, min: 464 },
-    items: 2,
+    items: 2
   },
   mobile: {
     breakpoint: { max: 464, min: 0 },
-    items: 1,
-  },
+    items: 1
+  }
 };
+
+
+
 
 const ProductDetail = () => {
   const [data, setData] = useState([]);
-  const [image, setImage] = useState("");
-  const [load, setLoad] = useState(true);
-  const location = useLocation();
-  const id = location.pathname?.split("product/")[1];
   const [sameProduct, setSameProduct] = useState([]);
+  const [image,setImage]=useState('');
+  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const [message,setMessage]=useState('');
+  const [openDialog,setOpenDialog]=useState(false);
+  const id = location.pathname?.split('product/')[1];
   // const id = location.pathname?.replace('product/', '');
   const history = useHistory();
 
-  useEffect(() => {
+  useEffect(async () => {
     window.scrollTo(0, 0);
-    console.log("first");
-    fetchData();
+    console.log('fitst');
+    fetchData();    
   }, [location]);
-
   const fetchData = () => {
-    setLoad(true);
+    setLoading(true);
     let url = `https://lap-center.herokuapp.com/api/product/getProductById/${id}`;
-    axios
-      .get(url)
-      .then(function (res) {
-        const data = res.data.response;
+    axios.get(url)
+      .then(function (response) {
+        const data=response.data.response;
+        console.log('data detail: ', data);
         setData(data);
-        console.log("data detail: ", data);
         setImage(data.images[0]);
-        setLoad(false);
+        setLoading(false);
         fecthSameProduct(data.brand);
       })
       .catch(function (error) {
-        setLoad(false);
-        console.log("error: ", error);
-      });
-  };
+        console.log('error: ', error);
+        setLoading(false);
 
-  const onChooseImage = (image) => {
-    setImage(image);
-  };
+      })
+  }
 
-  const fecthSameProduct = (brand) => {
-    // fetch API for get more product for this brand
-    setLoad(true);
-    axios
-      .get(
-        `https://lap-center.herokuapp.com/api/product?productBrand=${brand}&pageSize=10&pageNumber=1`
-      )
-      .then(function (response) {
-        console.log("product more: ", response.data.products);
-        setSameProduct(response.data.products);
-        setLoad(false);
+  const onAddToCart = () =>{
+    setLoading(true);
+    axios.post('https://lap-center.herokuapp.com/api/cart/addProductToCart', {
+        userId : localStorage.getItem("userId"),
+        productId: id,
+        productName: data.name,
+        productBrand: data.brand,
+       image:image,
+       price:data.price,
+      })
+      .then(function (res) {
+        console.log(res);
+        setLoading(false);
+        setOpenDialog(true);
+        setMessage('Đặt hàng thành công!!!');
       })
       .catch(function (error) {
         console.log(error);
-        setLoad(false);
+       setLoading(false);
+       setOpenDialog(true);
+       setMessage('Đặt hàng ko thành công vui lòng thử lại!!!');
       });
-  };
+  
+  }
+
+  const fecthSameProduct = (brand) => {
+    // fetch API for get more product for this brand
+    setLoading(true);
+    axios.get(`https://lap-center.herokuapp.com/api/product?productBrand=${brand}&pageSize=10&pageNumber=1`)
+      .then(function (response) {
+        console.log('product more: ', response.data.products);
+        setSameProduct(response.data.products);
+        setLoading(false);
+      })
+      .catch(function (error) {
+        console.log(error);
+        setLoading(false);
+      })
+    }
+  const onChooseImage = (image) => {
+    setImage(image);
+  }
 
   const moveToBuy = () => {
     history.push(`/buy/${id}`)
-  }
+      };
   return (
     <div>
-      <Navbar />
-      <Segment loading={load} className="detail-segment-container">
+        <Navbar/>
+      <Segment loading={loading} className="detail-segment-container">
         <div className="detail-product-name">{data.name}</div>
         <div className="detail-status">
           <p>Tình trạng: Còn hàng</p>
@@ -101,15 +126,15 @@ const ProductDetail = () => {
         <hr style={{ width: "80%" }} />
         <div className="detail-container">
           <div className="detail-left">
-            <img className="detail-image" src={image} alt="" />
+            <img
+              className="detail-image"
+              src={image}
+              alt={image}
+            />
             <div className="detail-list-images">
               {data?.images?.map((item) => (
-                <img
-                  className="detail-image-small"
-                  src={item}
-                  alt=""
-                  onClick={() => onChooseImage(item)}
-                />
+                <img className="detail-image-small" src={item} alt=""
+                 onClick={() => onChooseImage(item)} />
               ))}
             </div>
           </div>
@@ -121,14 +146,13 @@ const ProductDetail = () => {
               <div className="discount-top">
                 <p>Khuyến mãi - Quà tặng</p>
               </div>
-              <div className="discount-content">Something</div>
+              <div className="discount-content">something</div>
             </div>
             <div className="detail-buy">
-              <Button color="red" onClick={moveToBuy}>
-                MUA NGAY
-              </Button>
+              <Button onClick={moveToBuy} color="red">MUA NGAY</Button>
+              <Button onClick={onAddToCart} color="green" className="btnCart">THÊM VÀO GIỎ HÀNG</Button>
               <p>
-                GỌI NGAY <a href="tel:+84969442510"> 0522 564 268 </a> ĐỂ GIỮ
+                GỌI NGAY <a href="tel:+84969442510"> 0379 26 6143 </a> ĐỂ GIỮ
                 HÀNG
               </p>
             </div>
@@ -152,55 +176,84 @@ const ProductDetail = () => {
             </div>
           </div>
         </div>
-
         <div className="specifications">
-          <Table celled fixed singleLine>
+          <Table fixed>
             <Table.Header>
               <Table.Row>
-                <Table.HeaderCell>Phan cung</Table.HeaderCell>
-                <Table.HeaderCell>Thong so ki thuat</Table.HeaderCell>
+                <Table.HeaderCell>phần cứng</Table.HeaderCell>
+                <Table.HeaderCell>thông số kĩ thuật</Table.HeaderCell>
               </Table.Row>
             </Table.Header>
 
             <Table.Body>
               <Table.Row>
-                <Table.Cell>Ram</Table.Cell>
-                <Table.Cell>{data.ram}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>Man hinh</Table.Cell>
-                <Table.Cell>{data.monitor}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>CPU</Table.Cell>
-                <Table.Cell>{data.cpu}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell>Card man hinh</Table.Cell>
-                <Table.Cell>{data.card}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
                 <Table.Cell>Model</Table.Cell>
                 <Table.Cell>{data.model}</Table.Cell>
+                
               </Table.Row>
               <Table.Row>
-                <Table.Cell>O cung</Table.Cell>
-                <Table.Cell>{data.disk}</Table.Cell>
+                <Table.Cell>Cpu</Table.Cell>
+                <Table.Cell>{data.cpu}</Table.Cell>
+                
               </Table.Row>
+              <Table.Row>
+                <Table.Cell>Ram</Table.Cell>
+                <Table.Cell>{data.ram}</Table.Cell>
+                
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Ổ cứng</Table.Cell>
+                <Table.Cell>{data.disk}</Table.Cell>
+                
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Card đồ họa</Table.Cell>
+                <Table.Cell>{data.card}</Table.Cell>
+                
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell>Màn Hình</Table.Cell>
+                <Table.Cell>{data.monitor}</Table.Cell>
+                
+              </Table.Row>
+              
             </Table.Body>
           </Table>
         </div>
         <div className="same-product">
           <h3>Sản phẩm cùng thương hiệu</h3>
           <hr />
-          <Carousel responsive={responsive} showDots={true}>
+          <Carousel 
+            responsive={responsive}
+            showDots={true}
+          >
             {sameProduct.map((item) => (
-              <CardItem product={item} />
+              <CardItem product={item}/>
             ))}
           </Carousel>
+          <Modal
+        onClose={() => setOpenDialog(false)}
+        onOpen={() => setOpenDialog(true)}
+        open={openDialog}
+        size="mini"
+      >
+        <Modal.Header>
+          <h4 className="txt-check">Thông báo</h4>
+        </Modal.Header>
+        <Modal.Content image>
+          <p>{message}</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
+        </Modal.Actions>
+      </Modal>
         </div>
       </Segment>
+      <hr style={{ width: "80%" }} />
       <Footer />
+      
+
+
     </div>
   );
 };

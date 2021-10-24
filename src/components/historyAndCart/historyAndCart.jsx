@@ -12,6 +12,7 @@ function HistoryAndCart() {
   const moveToCart = () => {
     history.push(`/cart/${userId}`);
   };
+  
   return (
     <div>
       <div className="historyIcon">

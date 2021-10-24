@@ -9,6 +9,7 @@ import Register from './pages/register/regiter';
 import ProductDetail from './pages/productDetail/productDetail';
 import Buy from './pages/buy/buy';
 import History from './pages/history/history';
+import Cart from './pages/cart/cart';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
         <Route path='/product/:id' exact component={ProductDetail} />
         <Route path='/buy/:id' exact component={Buy} />
         <Route path='/history/:userId' exact component={History} />
+        <Route path='/cart/:userId' exact component={Cart} />
         <Route component={NotFoundPage} />     
       </Switch>
     </BrowserRouter>
