@@ -4,6 +4,8 @@ import Footer from "../footer/footer";
 import { Table, Segment, Popup, Button, Modal } from "semantic-ui-react";
 import "./cart.scss";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
+
 
 function Cart() {
   const [data, setData] = useState([]);
@@ -14,6 +16,7 @@ function Cart() {
   const [message, setMessage] = useState("");
   const [open, setOpen] = useState("");
   const [productId, setProducId] = useState("");
+  const history = useHistory();
 
   useEffect(() => {
     fetchAPI();
@@ -53,6 +56,10 @@ function Cart() {
         setMessage("Xóa không thành công sản phẩm khỏi giỏ hàng!!!");
       });
   };
+
+  const moveToBuy = (id) => {
+    history.push(`/buy/${id}`)
+      };
 
   return (
     <div>
@@ -107,7 +114,7 @@ function Cart() {
                           icon="shopping cart"
                           color="facebook"
                           circular
-                          //   onClick={() => onBuy(item.productId)}
+                            onClick={() => moveToBuy(item.productId)}
                         />
                       }
                     />
