@@ -10,6 +10,7 @@ import ProductDetail from './pages/productDetail/productDetail';
 import Buy from './pages/buy/buy';
 import History from './pages/history/history';
 import Cart from './pages/cart/cart';
+import ManageOrder from './pages/admin/order/manageOrder';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path='/buy/:id' exact component={Buy} />
         <Route path='/history/:userId' exact component={History} />
         <Route path='/cart/:userId' exact component={Cart} />
+        <Route path='/admin/oder' exact component={ManageOrder} />
         <Route component={NotFoundPage} />     
       </Switch>
     </BrowserRouter>
