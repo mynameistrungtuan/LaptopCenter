@@ -21,6 +21,7 @@ const ManageOrder = () => {
   const [open, setOpen] = useState(false);
   const [dataItem, setDataItem] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [openDialogDelete, setOpenDialogDelete] = useState(false);
   const [message, setMessage] = useState("");
   const [orderId, setOrderId] = useState("");
   const [orderStatus, setOrderStatus] = useState(0);
@@ -126,6 +127,27 @@ const ManageOrder = () => {
     setOrderStatus(order);
   };
 
+  const onDelete = () => {
+    setLoading(true);
+    axios
+      .delete(
+        `https://lap-center.herokuapp.com/api/order/removeOrder/${orderId}`
+      )
+      .then(function (response) {
+        setLoading(false);
+        setOpenDialog(true);
+        setMessage("Xóa thành công!!!");
+        fetchData();
+      })
+      .catch(function (error) {
+        // handle error
+        console.log(error);
+        setLoading(false);
+        setOpenDialog(true);
+        setMessage("Xóa thất bại!!!");
+      });
+  };
+
   return (
     <div>
       <Navbar />
@@ -149,18 +171,7 @@ const ManageOrder = () => {
                 <Table.Cell>{item.productName}</Table.Cell>
                 <Table.Cell>{item.phone}</Table.Cell>
                 <Table.Cell>
-                  <Table.Cell>
-                    {/* {item.orderStatus === 1 ? (
-                      <span className="case1">Vừa đặt hàng</span>
-                    ) : item.orderStatus === 2 ? (
-                      <span className="case2">Đang giao hàng</span>
-                    ) : item.orderStatus === 3 ? (
-                      <span className="case3">Đã nhận hàng</span>
-                    ) : (
-                      <span className="case4">Trả hàng</span>
-                    )} */}
-                    {convertOrder(item.orderStatus)}
-                  </Table.Cell>
+                  <Table.Cell>{convertOrder(item.orderStatus)}</Table.Cell>
                 </Table.Cell>
                 <Table.Cell>
                   <Popup
@@ -172,18 +183,22 @@ const ManageOrder = () => {
                         circular
                         onClick={() => {
                           onOpenDetail(item);
+                          setOpenDialogDelete(false);
                         }}
                       />
                     }
                   />
                   <Popup
-                    content="Mua"
+                    content="Xóa"
                     trigger={
                       <Button
                         icon="trash alternate"
                         color="youtube"
                         circular
-                        // onClick={() => moveToBuy(item.productId)}
+                        onClick={() => {
+                          setOrderId(item._id);
+                          setOpenDialogDelete(true);
+                        }}
                       />
                     }
                   />
@@ -279,6 +294,31 @@ const ManageOrder = () => {
         </Modal.Content>
         <Modal.Actions>
           <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
+        </Modal.Actions>
+      </Modal>
+      <Modal
+        onClose={() => setOpenDialogDelete(false)}
+        onOpen={() => setOpenDialogDelete(true)}
+        open={openDialogDelete}
+        size="mini"
+      >
+        <Modal.Header>
+          <h4 className="txt-check">Thông báo</h4>
+        </Modal.Header>
+        <Modal.Content image>
+          <p>Bạn có muốn xóa sản phẩm này không?</p>
+        </Modal.Content>
+        <Modal.Actions>
+          <Button onClick={() => setOpenDialogDelete(false)}>Hủy</Button>
+          <Button
+            color="green"
+            onClick={() => {
+              onDelete();
+              setOpenDialogDelete(false);
+            }}
+          >
+            Xác nhận
+          </Button>
         </Modal.Actions>
       </Modal>
     </div>
