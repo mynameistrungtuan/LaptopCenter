@@ -11,6 +11,7 @@ import {
 } from "semantic-ui-react";
 import Navbar from "../../../components/navbar/navbar";
 import "./manageOrder.scss";
+import { useHistory } from "react-router-dom";
 import axios from "axios";
 
 const ManageOrder = () => {
@@ -21,11 +22,14 @@ const ManageOrder = () => {
   const [open, setOpen] = useState(false);
   const [dataItem, setDataItem] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [openDialogDelete, setOpenDialogDelete] = useState(false);
   const [message, setMessage] = useState("");
   const [orderId, setOrderId] = useState("");
   const [orderStatus, setOrderStatus] = useState(0);
   const [temp, setTemp] = useState([]);
+  const [isDelete, setIsDelete] = useState(false);
+  const [isUserRole, setIsUserRole] = useState(false);
+  const isAdmin = localStorage.getItem("isAdmin");
+  const history = useHistory();
 
   const fetchData = () => {
     setLoading(true);
@@ -45,7 +49,13 @@ const ManageOrder = () => {
   };
 
   useEffect(() => {
-    fetchData("https://lap-center.herokuapp.com/api/order");
+    if(isAdmin === "undefined" || isAdmin === "false") {
+      setOpenDialog(true)
+      setMessage("Bạn không thể truy cập vào địa chỉ này. Vui lòng quay lại trang chủ!!!");
+      setIsUserRole(true);
+    } else {
+      fetchData();
+    } 
   }, []);
 
   const convertOrder = (order) => {
@@ -73,10 +83,16 @@ const ManageOrder = () => {
 
   const handlePaginationChange = async (activePage) => {
     setTemp(activePage);
-    const page = parseInt(activePage.target.innerHTML);
+    const page = parseInt(activePage?.target?.innerHTML);
     await setLoading(true);
     await setPageNumber(page);
-    let url = `https://lap-center.herokuapp.com/api/order?pageNumber=${activePage}`;
+    let url = "";
+    if (pageNumber === 1) {
+      url = `https://lap-center.herokuapp.com/api/order?pageNumber=1}`;
+    } else {
+      url = `https://lap-center.herokuapp.com/api/order?pageNumber=${activePage}`;
+    }
+
     await axios
       .get(url)
       .then(function (response) {
@@ -129,23 +145,29 @@ const ManageOrder = () => {
 
   const onDelete = () => {
     setLoading(true);
+    setIsDelete(false);
     axios
       .delete(
-        `https://lap-center.herokuapp.com/api/order/removeOrder/${orderId}`
+        ` https://lap-center.herokuapp.com/api/order/removeOrder/${orderId}`
       )
       .then(function (response) {
         setLoading(false);
         setOpenDialog(true);
-        setMessage("Xóa thành công!!!");
-        fetchData();
+        setMessage("Xóa thành công sản phẩm khỏi danh sách!!!");
+        handlePaginationChange(temp);
       })
       .catch(function (error) {
-        // handle error
-        console.log(error);
         setLoading(false);
         setOpenDialog(true);
-        setMessage("Xóa thất bại!!!");
+        setMessage("Xóa không thành công sản phẩm khỏi danh sách!!!");
       });
+  };
+
+  const onOpenDelete = (item) => {
+    setMessage("Bạn có chắc chắn muốn xóa đơn hàng này?");
+    setOpenDialog(true);
+    setOrderId(item._id);
+    setIsDelete(true);
   };
 
   return (
@@ -183,7 +205,6 @@ const ManageOrder = () => {
                         circular
                         onClick={() => {
                           onOpenDetail(item);
-                          setOpenDialogDelete(false);
                         }}
                       />
                     }
@@ -196,8 +217,7 @@ const ManageOrder = () => {
                         color="youtube"
                         circular
                         onClick={() => {
-                          setOrderId(item._id);
-                          setOpenDialogDelete(true);
+                          onOpenDelete(item);
                         }}
                       />
                     }
@@ -293,32 +313,15 @@ const ManageOrder = () => {
           <p>{message}</p>
         </Modal.Content>
         <Modal.Actions>
-          <Button onClick={() => setOpenDialog(false)}>Đóng</Button>
-        </Modal.Actions>
-      </Modal>
-      <Modal
-        onClose={() => setOpenDialogDelete(false)}
-        onOpen={() => setOpenDialogDelete(true)}
-        open={openDialogDelete}
-        size="mini"
-      >
-        <Modal.Header>
-          <h4 className="txt-check">Thông báo</h4>
-        </Modal.Header>
-        <Modal.Content image>
-          <p>Bạn có muốn xóa sản phẩm này không?</p>
-        </Modal.Content>
-        <Modal.Actions>
-          <Button onClick={() => setOpenDialogDelete(false)}>Hủy</Button>
-          <Button
-            color="green"
-            onClick={() => {
-              onDelete();
-              setOpenDialogDelete(false);
-            }}
-          >
-            Xác nhận
-          </Button>
+        {!isUserRole && 
+            <Button onClick={() => {setOpenDialog(false); setIsDelete(false)}}>{isDelete ? "Hủy" : "Đóng"}</Button>
+          }
+          {isDelete &&
+            <Button onClick={() => onDelete()} color="blue">Xác nhận</Button>
+          }
+          {isUserRole &&
+            <Button onClick={() => {history.push(""); setOpenDialog(false)}} color="blue">Trang chủ</Button>
+          }
         </Modal.Actions>
       </Modal>
     </div>
