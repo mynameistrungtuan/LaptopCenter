@@ -6,6 +6,7 @@ import { useHistory } from "react-router-dom";
 
 const Navbar = (props) => {
   const history = useHistory();
+  const isAdmin = localStorage.getItem("isAdmin");
 
   const backToHome = () => {
     history.push("/");
@@ -28,6 +29,11 @@ const Navbar = (props) => {
         <Link className="option" to="/contact">
           LIÊN HỆ
         </Link>
+        {isAdmin === "true" && (
+          <Link className="option" to="/admin/order">
+            QUẢN LÝ ĐƠN HÀNG
+          </Link>
+        )}
         {currentUser ? (
           <Link
             className="option"

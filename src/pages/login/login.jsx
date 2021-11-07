@@ -29,10 +29,11 @@ function Login() {
       .then(function (response) {
         setLoading(false);
         console.log(response);
-        history.push("/");
         alert("Đăng nhập thành công!!!");
-        localStorage.setItem('customerName', response.data.userName);
-      localStorage.setItem('userId', response.data.userId);
+        localStorage.setItem("customerName", response.data.userName);
+        localStorage.setItem("userId", response.data.userId);
+        localStorage.setItem('isAdmin',response.data.isAdmin);
+        history.push("/");
       })
       .catch(function (error) {
         setLoading(false);
